@@ -1,0 +1,186 @@
+<!-- order_history.html - Updated with feedback -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Orders</h2>
+    
+    {% if orders %}
+    <div class="row">
+        <div class="col-12">
+            {% for order in orders %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">Order #{{ order.order_id }}</h5>
+                        <small class="text-muted">Placed on: {{ order.created_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% else %}warning{% endif %} fs-6">
+                        {{ order.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6>Shipping Address:</h6>
+                            <p class="mb-1"><strong>{{ order.shipping_address.full_name }}</strong></p>
+                            <p class="mb-1">{{ order.shipping_address.address }}</p>
+                            <p class="mb-1">{{ order.shipping_address.city }}, {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}</p>
+                            <p class="mb-0">Phone: {{ order.shipping_address.phone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Order Total:</span>
+                                <strong>₹{{ order.total_amount }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Last Updated:</span>
+                                <span>{{ order.updated_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6>Order Items:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.orderitem_set.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                                 class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div>
+                                                <strong>{{ item.product.name }}</strong><br>
+                                                <small class="text-muted">{{ item.product.category.name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>₹{{ item.price }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td><strong>₹{{ item.total_price }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Grand Total:</strong></td>
+                                    <td><strong>₹{{ order.total_amount }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    
+                    <!-- Feedback Section -->
+                    {% if order.status == 'delivered' %}
+                    <div class="feedback-section mt-4">
+                        {% if order.orderfeedback %}
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Feedback Submitted</h6>
+                            <div class="d-flex align-items-center mb-2">
+                                <strong>Rating: </strong>
+                                <div class="ms-2">
+                                    {% for i in "12345" %}
+                                    <i class="fas fa-star{% if forloop.counter <= order.orderfeedback.rating %} text-warning{% else %} text-muted{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="mb-0"><strong>Comment:</strong> {{ order.orderfeedback.comment }}</p>
+                        </div>
+                        {% else %}
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Share Your Feedback</h6>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="{% url 'submit_feedback' order.id %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating</label>
+                                        <div class="rating-stars">
+                                            {% for i in "12345" %}
+                                            <input type="radio" id="star{{ forloop.counter }}" name="rating" value="{{ forloop.counter }}" required>
+                                            <label for="star{{ forloop.counter }}" class="star-label">
+                                                <i class="fas fa-star"></i>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="comment{{ order.id }}" class="form-label">Comment</label>
+                                        <textarea class="form-control" id="comment{{ order.id }}" name="comment" rows="3" required placeholder="Share your experience with this order..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <h4>No orders found</h4>
+        <p>You haven't placed any orders yet.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-stars input {
+    display: none;
+}
+
+.rating-stars .star-label {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #ddd;
+    transition: color 0.2s;
+    margin-right: 5px;
+}
+
+.rating-stars input:checked ~ .star-label,
+.rating-stars .star-label:hover,
+.rating-stars .star-label:hover ~ .star-label {
+    color: #ffc107;
+}
+
+.rating-stars input:checked + .star-label {
+    color: #ffc107;
+}
+
+.feedback-section .card {
+    border: 1px solid #28a745;
+}
+
+.feedback-section .card-header {
+    background-color: #28a745;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .rating-stars .star-label {
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %}

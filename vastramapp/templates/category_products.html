@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="category-title">{{ selected_category.name }}</h2>
+            <p class="text-muted category-description">{{ selected_category.description }}</p>
+            
+            {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-item">
+                    <div class="product-card">
+                        <div class="position-relative">
+                            <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}">
+                            {% if product.discount_percentage > 0 %}
+                            <span class="discount-badge">-{{ product.discount_percentage }}% OFF</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">{{ product.name }}</h6>
+                            <p class="card-text text-muted small mb-2">{{ product.category.name }}</p>
+                            <div class="price-section mb-3">
+                                {% if product.actual_price > product.special_price %}
+                                <span class="price-old">₹{{ product.actual_price }}</span>
+                                <span class="price-new">₹{{ product.special_price }}</span>
+                                {% else %}
+                                <span class="price-new">₹{{ product.actual_price }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                                {% if product.stock > 0 %}
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                                </a>
+                                {% else %}
+                                <button class="btn btn-secondary btn-sm" disabled>Out of Stock</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center">
+                <h4>No products in this category</h4>
+                <p>Check back later for new arrivals!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Category Products Specific Styles */
+    .category-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .category-description {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Products Grid Layout */
+    .products-grid {
+        display: grid;
+        gap: 1.5rem;
+        width: 100%;
+    }
+    
+    /* Desktop/Laptop - 4 items per row with smaller cards */
+    @media (min-width: 1200px) {
+        .products-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .product-card {
+            transform: scale(0.95);
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: scale(0.98) translateY(-5px);
+        }
+    }
+    
+    /* Small Desktop - 3 items per row */
+    @media (min-width: 992px) and (max-width: 1199px) {
+        .products-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    /* Tablet - 2 items per row */
+    @media (min-width: 768px) and (max-width: 991px) {
+        .products-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .product-card {
+            margin: 0 auto;
+            max-width: 100%;
+        }
+    }
+    
+    /* Mobile - 2 items per row with optimized spacing */
+    @media (max-width: 767px) {
+        .products-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+        }
+        
+        .category-description {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-card {
+            margin: 0;
+            max-width: 100%;
+        }
+        
+        .product-img {
+            height: 180px !important;
+        }
+        
+        .card-title {
+            font-size: 0.9rem;
+            line-height: 1.2;
+            height: 2.4rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .price-section {
+            margin-bottom: 1rem !important;
+        }
+        
+        .price-new {
+            font-size: 1rem !important;
+        }
+        
+        .price-old {
+            font-size: 0.8rem !important;
+        }
+        
+        .btn-sm {
+            padding: 0.4rem 0.8rem !important;
+            font-size: 0.8rem !important;
+        }
+        
+        .discount-badge {
+            font-size: 0.7rem !important;
+            padding: 4px 8px !important;
+        }
+    }
+    
+    /* Very Small Mobile - Adjust for very small screens */
+    @media (max-width: 480px) {
+        .products-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+        
+        .product-img {
+            height: 150px !important;
+        }
+        
+        .card-body {
+            padding: 0.8rem !important;
+        }
+        
+        .btn-sm {
+            padding: 0.3rem 0.6rem !important;
+            font-size: 0.75rem !important;
+        }
+    }
+    
+    /* Product Card Specific Styles */
+    .product-item {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .product-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .product-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    
+    .product-img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-img {
+        transform: scale(1.05);
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .card-title {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        height: 2.8rem;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    
+    .price-section {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .price-new {
+        color: var(--secondary-color);
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .price-old {
+        text-decoration: line-through;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+    
+    .discount-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--secondary-color);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 2;
+    }
+    
+    /* Button Styles */
+    .btn-outline-primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    /* No Products Alert */
+    .alert-info {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        border: none;
+        border-radius: 12px;
+        padding: 2rem;
+    }
+</style>
+{% endblock %}

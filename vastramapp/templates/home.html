@@ -1,0 +1,788 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Banner Section -->
+<section class="hero-banner">
+    <div class="container-fluid px-0 position-relative">
+        {% if sliders %}
+        <div class="hero-slider owl-carousel">
+            {% for slider in sliders %}
+            <div class="hero-slide position-relative">
+                <a href="{% url 'category_products' slider.category.id %}" class="d-block">
+                    <img src="{{ slider.image.url }}" class="w-100 hero-slide-img" alt="{{ slider.title }}">
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="hero-slider owl-carousel">
+            <div class="hero-slide position-relative">
+                <a href="#" class="d-block">
+                    <div class="hero-default-bg w-100 hero-slide-img" style="background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('{% static 'images/default-slider-1.jpg' %}'); background-size: cover; background-position: center;"></div>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Custom Navigation Buttons -->
+        <div class="hero-navigation d-none d-lg-block">
+            <button class="hero-nav-btn hero-prev-btn position-absolute top-50 start-0 translate-middle-y">
+                <i class="fas fa-chevron-left text-white"></i>
+            </button>
+            <button class="hero-nav-btn hero-next-btn position-absolute top-50 end-0 translate-middle-y">
+                <i class="fas fa-chevron-right text-white"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section py-5 bg-light">
+    <div class="container position-relative">
+        <div class="text-center mb-5">
+            <h2 class="section-title fw-bold mb-3">SHOP BY CATEGORY</h2>
+        </div>
+        
+        <!-- Category Navigation Arrows -->
+        <div class="category-navigation d-none d-lg-block">
+            <button class="category-nav-btn category-prev-btn position-absolute top-50 start-0 translate-middle-y">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="category-nav-btn category-next-btn position-absolute top-50 end-0 translate-middle-y">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="categories-scroll-container">
+            <div class="categories-scroll">
+                {% for category in categories %}
+                <div class="category-item">
+                    <a href="{% url 'category_products' category.id %}" class="text-decoration-none text-dark category-link">
+                        <div class="category-thumbnail mx-auto mb-3 rounded-circle overflow-hidden">
+                            {% if category.thumbnail %}
+                            <img src="{{ category.thumbnail.url }}" class="w-100 h-100 object-fit-cover" alt="{{ category.name }}">
+                            {% else %}
+                            <img src="{% static 'images/default-category.jpg' %}" class="w-100 h-100 object-fit-cover" alt="{{ category.name }}">
+                            {% endif %}
+                        </div>
+                        <h6 class="category-name fw-bold text-uppercase text-center">{{ category.name }}</h6>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <h4>No categories available</h4>
+                        <p>Categories will appear here once added by admin.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="featured-products py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title fw-bold mb-0 text-start">MOST POPULAR</h2>
+            <a href="#" class="text-decoration-none text-dark small fw-semibold">VIEW ALL <i class="fas fa-chevron-right ms-1"></i></a>
+        </div>
+        <div class="products-scroll-container">
+            <div class="products-scroll">
+                {% for product in featured_products %}
+                <div class="product-item">
+                    <div class="product-card position-relative">
+                        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                            <div class="product-image position-relative mb-3">
+                                <img src="{{ product.image.url }}" class="w-100" alt="{{ product.name }}">
+                                {% if product.discount_percentage > 0 %}
+                                <span class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 small fw-semibold">-{{ product.discount_percentage }}%</span>
+                                {% endif %}
+                                {% if product.stock <= 0 %}
+                                <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center">
+                                    <span class="text-white fw-semibold">OUT OF STOCK</span>
+                                </div>
+                                {% endif %}
+                                <button class="btn btn-light btn-sm rounded-circle position-absolute bottom-0 end-0 m-2 add-to-wishlist" data-product-id="{{ product.id }}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="product-info">
+                                <h6 class="product-name fw-semibold mb-2 small">{{ product.name }}</h6>
+                                <p class="product-category text-muted small mb-2">{{ product.category.name }}</p>
+                                <div class="price-section d-flex align-items-center gap-2">
+                                    {% if product.actual_price > product.special_price %}
+                                    <span class="price-old text-muted small text-decoration-line-through">₹{{ product.actual_price }}</span>
+                                    <span class="price-new text-danger fw-bold">₹{{ product.special_price }}</span>
+                                    {% else %}
+                                    <span class="price-new text-dark fw-bold">₹{{ product.actual_price }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <h4>No featured products available</h4>
+                        <p>Check back later for popular items!</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- New Arrivals Section -->
+<section class="new-arrivals py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title fw-bold mb-0 text-start">NEW ARRIVALS</h2>
+            <a href="#" class="text-decoration-none text-dark small fw-semibold">VIEW ALL <i class="fas fa-chevron-right ms-1"></i></a>
+        </div>
+        <div class="products-scroll-container">
+            <div class="products-scroll">
+                {% for product in new_arrivals %}
+                <div class="product-item">
+                    <div class="product-card position-relative">
+                        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                            <div class="product-image position-relative mb-3">
+                                <img src="{{ product.image.url }}" class="w-100" alt="{{ product.name }}">
+                                <span class="position-absolute top-0 start-0 bg-success text-white px-2 py-1 m-2 small">NEW</span>
+                                {% if product.discount_percentage > 0 %}
+                                <span class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 small fw-semibold">-{{ product.discount_percentage }}%</span>
+                                {% endif %}
+                                {% if product.stock <= 0 %}
+                                <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center">
+                                    <span class="text-white fw-semibold">OUT OF STOCK</span>
+                                </div>
+                                {% endif %}
+                                <button class="btn btn-light btn-sm rounded-circle position-absolute bottom-0 end-0 m-2 add-to-wishlist" data-product-id="{{ product.id }}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="product-info">
+                                <h6 class="product-name fw-semibold mb-2 small">{{ product.name }}</h6>
+                                <p class="product-category text-muted small mb-2">{{ product.category.name }}</p>
+                                <div class="price-section d-flex align-items-center gap-2">
+                                    {% if product.actual_price > product.special_price %}
+                                    <span class="price-old text-muted small text-decoration-line-through">₹{{ product.actual_price }}</span>
+                                    <span class="price-new text-danger fw-bold">₹{{ product.special_price }}</span>
+                                    {% else %}
+                                    <span class="price-new text-dark fw-bold">₹{{ product.actual_price }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <h4>No new arrivals</h4>
+                        <p>New products will appear here soon!</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Best Deals Section -->
+<section class="most-discounted py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title fw-bold mb-0 text-start">BEST DEALS</h2>
+            <a href="#" class="text-decoration-none text-dark small fw-semibold">VIEW ALL <i class="fas fa-chevron-right ms-1"></i></a>
+        </div>
+        <div class="products-scroll-container">
+            <div class="products-scroll">
+                {% for product in most_discounted %}
+                <div class="product-item">
+                    <div class="product-card position-relative">
+                        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+                            <div class="product-image position-relative mb-3">
+                                <img src="{{ product.image.url }}" class="w-100" alt="{{ product.name }}">
+                                {% if product.discount_percentage > 0 %}
+                                <span class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 small fw-semibold">-{{ product.discount_percentage }}%</span>
+                                {% endif %}
+                                {% if product.stock <= 0 %}
+                                <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center">
+                                    <span class="text-white fw-semibold">OUT OF STOCK</span>
+                                </div>
+                                {% endif %}
+                                <button class="btn btn-light btn-sm rounded-circle position-absolute bottom-0 end-0 m-2 add-to-wishlist" data-product-id="{{ product.id }}">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </div>
+                            <div class="product-info">
+                                <h6 class="product-name fw-semibold mb-2 small">{{ product.name }}</h6>
+                                <p class="product-category text-muted small mb-2">{{ product.category.name }}</p>
+                                <div class="price-section d-flex align-items-center gap-2">
+                                    {% if product.actual_price > product.special_price %}
+                                    <span class="price-old text-muted small text-decoration-line-through">₹{{ product.actual_price }}</span>
+                                    <span class="price-new text-danger fw-bold">₹{{ product.special_price }}</span>
+                                    {% else %}
+                                    <span class="price-new text-dark fw-bold">₹{{ product.actual_price }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        <h4>No discounted products available</h4>
+                        <p>Great deals will appear here soon!</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Special Offers Section -->
+{% if special_offers %}
+<section class="special-offers-section py-5 bg-dark text-white">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">SPECIAL OFFERS</h2>
+        <div class="special-offers-slider owl-carousel">
+            {% for offer in special_offers %}
+            <div class="special-offer-item bg-white text-dark rounded p-4 mx-2">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="offer-title fw-bold mb-3">{{ offer.title }}</h3>
+                        <p class="offer-description text-muted mb-3">{{ offer.description }}</p>
+                        <div class="coupon-code mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="OFFER{{ offer.discount_percentage }}" id="coupon-{{ offer.id }}" readonly>
+                                <button class="btn btn-primary copy-coupon" data-coupon="coupon-{{ offer.id }}">
+                                    <i class="fas fa-copy me-1"></i> Copy
+                                </button>
+                            </div>
+                            <small class="text-success d-none coupon-copied">Copied to clipboard!</small>
+                        </div>
+                        <small class="offer-audience text-primary fw-semibold">For: {{ offer.get_target_audience_display }}</small>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="offer-discount display-4 fw-bold text-danger mb-3">{{ offer.discount_percentage }}% OFF</div>
+                        <a href="#" class="btn btn-dark btn-lg px-4">GRAB OFFER</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<style>
+    /* Peter England Inspired Homepage Styles */
+    .section-title {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #000;
+    }
+    
+    /* Remove margins between sections */
+    .hero-banner,
+    .categories-section,
+    .featured-products,
+    .new-arrivals,
+    .most-discounted,
+    .special-offers-section {
+        margin: 0 !important;
+    }
+    
+    /* Hero Banner Styles */
+    .hero-slide-img {
+        height: 30vh;
+        object-fit: cover;
+        width: 100%;
+        aspect-ratio: 16/9;
+    }
+    
+    .hero-default-bg {
+        height: 30vh;
+        aspect-ratio: 16/9;
+    }
+    
+    /* Custom Navigation Buttons */
+    .hero-navigation {
+        pointer-events: none;
+    }
+    
+    .hero-nav-btn {
+        width: 60px;
+        height: 60px;
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #fff;
+        transition: all 0.3s ease;
+        pointer-events: all;
+        z-index: 10;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .hero-nav-btn:hover {
+        transform: scale(1.2);
+        color: #fff;
+    }
+    
+    .hero-prev-btn {
+        left: 20px;
+    }
+    
+    .hero-next-btn {
+        right: 20px;
+    }
+    
+    /* Categories Section - Enhanced for Desktop */
+    .categories-scroll-container {
+        overflow-x: auto;
+        padding: 20px 0;
+        margin: 0 -15px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    
+    .categories-scroll-container::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .categories-scroll {
+        display: flex;
+        gap: 30px;
+        padding: 0 15px;
+        min-width: max-content;
+    }
+    
+    .category-item {
+        flex: 0 0 auto;
+        text-align: center;
+        width: 120px;
+    }
+    
+    .category-thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto 15px;
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+    }
+    
+    .category-link {
+        transition: all 0.3s ease;
+        padding: 10px;
+        border-radius: 15px;
+    }
+    
+    .category-link:hover {
+        transform: translateY(-5px);
+        background: rgba(0,0,0,0.05);
+        text-decoration: none;
+    }
+    
+    .category-link:hover .category-thumbnail {
+        transform: scale(1.15);
+        border-color: #e74c3c;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .category-name {
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition: color 0.3s ease;
+    }
+    
+    .category-link:hover .category-name {
+        color: #e74c3c !important;
+    }
+    
+    /* Category Navigation */
+    .category-navigation {
+        pointer-events: none;
+    }
+    
+    .category-nav-btn {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: #333;
+        transition: all 0.3s ease;
+        pointer-events: all;
+        z-index: 10;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .category-nav-btn:hover {
+        background: white;
+        transform: scale(1.1);
+    }
+    
+    .category-prev-btn {
+        left: -20px;
+    }
+    
+    .category-next-btn {
+        right: -20px;
+    }
+    
+    /* Products Section */
+    .products-scroll-container {
+        overflow-x: auto;
+        padding: 15px 0;
+        margin: 0 -15px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #ccc #f1f1f1;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+    
+    .products-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
+    
+    .products-scroll {
+        display: flex;
+        gap: 20px;
+        padding: 0 15px;
+        min-width: max-content;
+    }
+    
+    .product-item {
+        flex: 0 0 auto;
+        width: 200px;
+    }
+    
+    .product-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .product-image {
+        overflow: hidden;
+    }
+    
+    .product-image img {
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        width: 100%;
+    }
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+    
+    /* Special Offers Coupon Styles */
+    .coupon-code .input-group {
+        max-width: 300px;
+    }
+    
+    .coupon-code .form-control {
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .copy-coupon {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+    
+    .copy-coupon:hover {
+        background: #218838;
+        border-color: #1e7e34;
+    }
+    
+    .coupon-copied {
+        transition: all 0.3s ease;
+    }
+    
+    /* Payment Icons */
+    .payment-icons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .payment-icon {
+        width: 40px;
+        height: 25px;
+        background: #fff;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    /* Responsive adjustments */
+    @media (min-width: 768px) {
+        .hero-slide-img,
+        .hero-default-bg {
+            height: 50vh;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .hero-slide-img,
+        .hero-default-bg {
+            height: 60vh;
+        }
+        
+        /* Desktop Category Enhancements */
+        .category-item {
+            width: 180px;
+        }
+        
+        .category-thumbnail {
+            width: 140px;
+            height: 140px;
+        }
+        
+        .category-name {
+            font-size: 1.1rem;
+        }
+        
+        .categories-scroll {
+            gap: 40px;
+        }
+    }
+    
+    @media (min-width: 1440px) {
+        .hero-slide-img,
+        .hero-default-bg {
+            height: 80vh;
+        }
+        
+        .category-item {
+            width: 200px;
+        }
+        
+        .category-thumbnail {
+            width: 160px;
+            height: 160px;
+        }
+        
+        .category-name {
+            font-size: 1.2rem;
+        }
+    }
+    
+    @media (max-width: 1023px) {
+        /* Keep mobile/tablet sizes as before */
+        .category-item {
+            width: 120px;
+        }
+        
+        .category-thumbnail {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .category-name {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .category-item {
+            width: 100px;
+        }
+        
+        .category-thumbnail {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .category-name {
+            font-size: 0.8rem;
+        }
+        
+        .product-item {
+            width: 160px;
+        }
+        
+        .product-image img {
+            height: 200px;
+        }
+    }
+</style>
+
+<!-- Load jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+<script>
+    // Wait for document to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize sliders only if jQuery is available
+        if (window.jQuery) {
+            // Hero Slider Configuration
+            var heroSlider = $('.hero-slider').owlCarousel({
+                items: 1,
+                loop: true,
+                nav: false,
+                dots: true,
+                autoplay: true,
+                autoplayTimeout: 5000,
+                autoplayHoverPause: true,
+                animateOut: 'fadeOut',
+                smartSpeed: 800
+            });
+            
+            // Custom navigation for hero slider
+            $('.hero-prev-btn').click(function() {
+                heroSlider.trigger('prev.owl.carousel');
+            });
+            
+            $('.hero-next-btn').click(function() {
+                heroSlider.trigger('next.owl.carousel');
+            });
+            
+            // Category Navigation
+            $('.category-prev-btn').click(function() {
+                $('.categories-scroll-container').animate({
+                    scrollLeft: '-=200'
+                }, 300);
+            });
+            
+            $('.category-next-btn').click(function() {
+                $('.categories-scroll-container').animate({
+                    scrollLeft: '+=200'
+                }, 300);
+            });
+            
+            // Coupon Copy Functionality
+            $('.copy-coupon').click(function() {
+                var couponId = $(this).data('coupon');
+                var couponInput = $('#' + couponId);
+                var copiedText = $(this).closest('.coupon-code').find('.coupon-copied');
+                
+                // Select the text
+                couponInput.select();
+                couponInput[0].setSelectionRange(0, 99999); // For mobile devices
+                
+                // Copy the text
+                navigator.clipboard.writeText(couponInput.val()).then(function() {
+                    // Show copied message
+                    copiedText.removeClass('d-none');
+                    setTimeout(function() {
+                        copiedText.addClass('d-none');
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Failed to copy text: ', err);
+                    // Fallback for older browsers
+                    document.execCommand('copy');
+                    copiedText.removeClass('d-none');
+                    setTimeout(function() {
+                        copiedText.addClass('d-none');
+                    }, 2000);
+                });
+            });
+            
+            // Special Offers Slider Configuration
+            if ($('.special-offers-slider').length) {
+                $('.special-offers-slider').owlCarousel({
+                    items: 1,
+                    loop: true,
+                    nav: true,
+                    dots: true,
+                    autoplay: true,
+                    autoplayTimeout: 4000,
+                    autoplayHoverPause: true,
+                    navText: ['<i class="fas fa-chevron-left"></i>', '<i class="fas fa-chevron-right"></i>']
+                });
+            }
+            
+            // AJAX for wishlist
+            $('.add-to-wishlist').click(function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var productId = $(this).data('product-id');
+                var button = $(this);
+                
+                $.ajax({
+                    url: '{% url "add_to_wishlist" 0 %}'.replace('0', productId),
+                    type: 'GET',
+                    success: function(response) {
+                        if(response.status === 'success') {
+                            button.find('i').addClass('text-danger');
+                            showToast('Added to wishlist!', 'success');
+                        } else {
+                            showToast('Already in wishlist!', 'info');
+                        }
+                    },
+                    error: function() {
+                        showToast('Error adding to wishlist!', 'error');
+                    }
+                });
+            });
+            
+            function showToast(message, type) {
+                var toast = $('<div class="alert alert-' + type + ' alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">' +
+                             message +
+                             '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                             '</div>');
+                $('body').append(toast);
+                setTimeout(function(){
+                    toast.alert('close');
+                }, 3000);
+            }
+        } else {
+            console.error('jQuery is not loaded. Sliders and interactive features will not work.');
+        }
+    });
+</script>
+{% endblock %}

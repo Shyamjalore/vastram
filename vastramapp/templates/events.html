@@ -1,0 +1,124 @@
+<!-- events.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Upcoming Events</h2>
+    
+    {% if events %}
+    <div class="row">
+        {% for event in events %}
+        <div class="col-lg-6 col-md-6 mb-4">
+            <div class="card event-card h-100">
+                <div class="position-relative">
+                    <img src="{{ event.image.url }}" class="card-img-top event-image" alt="{{ event.title }}">
+                    <div class="event-date">
+                        <span class="event-day">{{ event.event_date|date:"d" }}</span>
+                        <span class="event-month">{{ event.event_date|date:"M" }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.title }}</h5>
+                    <p class="card-text text-muted">{{ event.description|truncatewords:30 }}</p>
+                    <div class="event-meta">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ event.event_date|date:"F j, Y" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        <h4>No Upcoming Events</h4>
+        <p>Check back later for exciting events and promotions!</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.event-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.event-image {
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-image {
+    transform: scale(1.05);
+}
+
+.event-date {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 60px;
+}
+
+.event-day {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.event-month {
+    display: block;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.event-meta {
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .event-image {
+        height: 200px;
+    }
+    
+    .event-date {
+        top: 10px;
+        right: 10px;
+        padding: 8px;
+        min-width: 50px;
+    }
+    
+    .event-day {
+        font-size: 1.2rem;
+    }
+    
+    .event-month {
+        font-size: 0.8rem;
+    }
+}
+</style>
+{% endblock %}
